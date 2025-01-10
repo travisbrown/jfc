@@ -6,7 +6,7 @@ circe includes a parsing module, which on the JVM is a wrapper around the [Jawn]
 Parsing is not part of the `circe-core` module, so you will need to include a dependency on the `circe-parser` module in your build:
 
 ```scala
-libraryDependencies += "io.circe" %% "circe-parser" % circeVersion
+libraryDependencies += "io.circe" %% "circe-parser" % "@VERSION@"
 ```
 
 Parsing is done as follows.

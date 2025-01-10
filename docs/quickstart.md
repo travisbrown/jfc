@@ -1,11 +1,11 @@
 Quick Start
 ===========
 
-circe is published to [Maven Central][maven-central] and cross-built for Scala 2.12 and 2.13,
+circe is published to [Maven Central][maven-central] and cross-built for Scala 2.12, 2.13 and 3.x,
 so you can just add the following to your build:
 
 ```scala
-val circeVersion = "0.14.1"
+val circeVersion = "@VERSION@"
 
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",

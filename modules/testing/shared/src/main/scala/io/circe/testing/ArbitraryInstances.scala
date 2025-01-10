@@ -16,7 +16,6 @@
 
 package io.circe.testing
 
-import cats.instances.list._
 import io.circe.DecodingFailure.Reason
 import io.circe.DecodingFailure.Reason.CustomReason
 import io.circe.DecodingFailure.Reason.MissingField
@@ -150,4 +149,4 @@ trait ArbitraryInstances extends ArbitraryJsonNumberTransformer with CogenInstan
   )
 }
 
-object ArbitraryInstances {}
+object ArbitraryInstances extends ArbitraryInstances
