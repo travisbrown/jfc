@@ -1,10 +1,10 @@
 :root {
-  --primary-color: #222749;
-  --primary-light: #5B5988;
-  --primary-medium: #292E53;
-  --secondary-color: #222749;
-  --text-color: #5f5f5f;
-  --bg-color: #F4F3F4;
+  --primary-color: #34324D;
+  --primary-light: #A29DF2;
+  --primary-medium: #8F8BD5;
+  --secondary-color: #262D52;
+  --text-color: #4a4a4a;
+  --bg-color: #F8F5FF;
   --gradient-top: #F4F3F4;
   --gradient-bottom: #E5E5E6;
   --component-color: var(--primary-color);
@@ -43,6 +43,7 @@
   --content-width: 860px;
   --nav-width: 275px;
   --top-bar-height: 35px;
+  color-scheme: light dark;
 }
 
 .light-inverted {
@@ -51,6 +52,48 @@
   --component-hover: var(--bg-color);
   --component-border: var(--primary-light);
   --subtle-highlight: rgba(255, 255, 255, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #A6A6FF;
+    --primary-light: #2F2F47;
+    --primary-medium: #8A8AD4;
+    --secondary-color: #DDD9FF;
+    --text-color: #D2E3FA;
+    --bg-color: #10101C;
+    --gradient-top: #F4F3F4;
+    --gradient-bottom: #E5E5E6;
+    --component-color: var(--primary-color);
+    --component-area-bg: var(--primary-light);
+    --component-hover: var(--secondary-color);
+    --component-border: var(--primary-medium);
+    --subtle-highlight: rgba(255, 255, 255, 0.15);
+    --messages-info: #ebf6f7;
+    --messages-info-light: #007c99;
+    --messages-warning: #fcfacd;
+    --messages-warning-light: #b1a400;
+    --messages-error: #ffe9e3;
+    --messages-error-light: #d83030;
+    --syntax-base1: #23232E;
+    --syntax-base2: #BABACF;
+    --syntax-base3: #6B6BB5;
+    --syntax-base4: #E6E6FF;
+    --syntax-base5: #F2F2FF;
+    --syntax-wheel1: #FF6B57;
+    --syntax-wheel2: #FFAD54;
+    --syntax-wheel3: #FFE957;
+    --syntax-wheel4: #7EE6B4;
+    --syntax-wheel5: #968CFF;
+  }
+
+  .dark-inverted {
+    --component-color: var(--primary-medium);
+    --component-area-bg: var(--primary-color);
+    --component-hover: var(--bg-color);
+    --component-border: var(--primary-light);
+    --subtle-highlight: rgba(0, 0, 0, 0.05);
+  }
 }
 
 *, :after, :before {
