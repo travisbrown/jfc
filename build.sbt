@@ -1,9 +1,9 @@
 import sbtcrossproject.{ CrossProject, CrossType }
 import com.typesafe.tools.mima.core._
 
-val Scala212V: String = "2.12.19"
-val Scala213V: String = "2.13.14"
-val Scala3V: String = "3.3.3"
+val Scala212V: String = "2.12.20"
+val Scala213V: String = "2.13.15"
+val Scala3V: String = "3.3.4"
 
 ThisBuild / startYear := Some(2024)
 ThisBuild / tlBaseVersion := "0.14"
@@ -23,16 +23,21 @@ ThisBuild / scalafixAll / skip := tlIsScala3.value
 ThisBuild / ScalafixConfig / skip := tlIsScala3.value
 ThisBuild / circeRootOfCodeCoverage := Some("rootJVM")
 
+//This is really bad, but we need to add the _native0.5 for this: https://github.com/sbt/sbt/issues/7140
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-native" %% "test-interface_native0.5" % VersionScheme.Always
+
+val opticsVersion = "0.15.0"
+
 val catsVersion = "2.12.0"
 val jawnVersion = "1.6.0"
 val shapelessVersion = "2.3.12"
-val refinedVersion = "0.9.29"
-val refinedNativeVersion = "0.11.2"
 
 val paradiseVersion = "2.1.1"
 
-val scalaCheckVersion = "1.18.0"
-val munitVersion = "1.0.0"
+val scalaCheckVersion = "1.18.1"
+val munitVersion = "1.0.4"
+val munitScalaCheckVersion = "1.0.0"
 val disciplineVersion = "1.7.0"
 val disciplineScalaTestVersion = "2.3.0"
 val disciplineMunitVersion = "2.0.0"
@@ -111,9 +116,12 @@ lazy val docs = project
     name := "Circe docs",
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic-extras" % "0.14.3",
-      "io.circe" %% "circe-optics" % "0.15.0"
+      "io.circe" %% "circe-optics" % opticsVersion
     ),
-    tlSitePublishBranch := Some("series/0.14.x")
+    tlSitePublishBranch := Some("series/0.14.x"),
+    mdocVariables ++= Map(
+      "CIRCE_OPTICS_VERSION" -> opticsVersion
+    )
   )
   .enablePlugins(CirceOrgSitePlugin)
   .settings(macroSettings)
@@ -163,7 +171,6 @@ lazy val root = tlCrossRootProject
     parser,
     pointer,
     pointerLiteral,
-    refined,
     scalafixInternalInput,
     scalafixInternalOutput,
     scalafixInternalRules,
@@ -322,7 +329,7 @@ lazy val literal = circeCrossModule("literal", CrossType.Pure)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % Test,
       "org.scalameta" %%% "munit" % munitVersion % Test,
-      "org.scalameta" %%% "munit-scalacheck" % munitVersion % Test
+      "org.scalameta" %%% "munit-scalacheck" % munitScalaCheckVersion % Test
     ) ++ (if (tlIsScala3.value) Seq("org.typelevel" %%% "jawn-parser" % jawnVersion % Provided)
           else Seq("com.chuusai" %%% "shapeless" % shapelessVersion))
   )
@@ -335,32 +342,7 @@ lazy val literal = circeCrossModule("literal", CrossType.Pure)
   .nativeSettings(
     tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.14.9").toMap
   )
-  .dependsOn(core, parser % Test, testing % Test)
-
-lazy val refined = circeCrossModule("refined")
-  .settings(
-    tlVersionIntroduced += "3" -> "0.14.3",
-    libraryDependencies ++= {
-      val refinedV =
-        if (crossProjectPlatform.value == NativePlatform) refinedNativeVersion
-        else refinedVersion
-      Seq(
-        "eu.timepit" %%% "refined" % refinedV,
-        "eu.timepit" %%% "refined-scalacheck" % refinedV % Test
-      )
-    },
-    dependencyOverrides ++= Seq(
-      "org.scala-lang.modules" %% "scala-xml" % "2.1.0"
-    ),
-    Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.AllLibraryJars
-  )
-  .platformsSettings(JSPlatform, NativePlatform)(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % scalaJavaTimeVersion % Test
-  )
-  .nativeSettings(
-    tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.14.9").toMap
-  )
-  .dependsOn(core, tests % Test)
+  .dependsOn(core, jawn, testing % Test)
 
 lazy val parser =
   circeCrossModule("parser")
@@ -383,7 +365,7 @@ lazy val scalajsJavaTimeTest = circeModule("scalajs-java-time-test")
 
 lazy val scodec = circeCrossModule("scodec")
   .settings(
-    libraryDependencies += "org.scodec" %%% "scodec-bits" % "1.2.0"
+    libraryDependencies += "org.scodec" %%% "scodec-bits" % "1.2.1"
   )
   .platformsSettings(JSPlatform, NativePlatform)(
     libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % scalaJavaTimeVersion % Test
@@ -471,7 +453,7 @@ lazy val pointerLiteral = circeCrossModule("pointer-literal", CrossType.Pure)
     tlVersionIntroduced += "3" -> "0.14.2",
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % munitVersion % Test,
-      "org.scalameta" %%% "munit-scalacheck" % munitVersion % Test
+      "org.scalameta" %%% "munit-scalacheck" % munitScalaCheckVersion % Test
     )
   )
   .nativeSettings(

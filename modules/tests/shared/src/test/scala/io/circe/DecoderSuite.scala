@@ -269,6 +269,42 @@ class DecoderSuite extends CirceMunitSuite with LargeNumberDecoderTestsMunit {
     assertEquals(result, expected)
   }
 
+  test("SeqDecoder should keep cursor properties while decoding") {
+    val payload: Json = Json.obj(
+      "a" -> Json.fromString("0"),
+      "in" -> Json.arr(
+        Json.obj("b" -> Json.fromString("1")),
+        Json.obj("b" -> Json.fromString("2"))
+      )
+    )
+
+    val innerDecoder: Decoder[Map[String, String]] = Decoder[Map[String, String]] { c =>
+      for {
+        x <- c.downField("b").as[String]
+        a <- c.root.downField("a").as[String]
+        idx = c.index.map(_.toString).getOrElse("no index")
+      } yield Map("b" -> x, "topA" -> a, "index" -> idx)
+    }
+
+    val inRoot = payload.hcursor.downField("in")
+    val result = Decoder.decodeSeq(innerDecoder)(inRoot.success.get)
+    val expected = Right(
+      Seq(
+        Map(
+          "b" -> "1",
+          "topA" -> "0",
+          "index" -> "0"
+        ),
+        Map(
+          "b" -> "2",
+          "topA" -> "0",
+          "index" -> "1"
+        )
+      )
+    )
+    assertEquals(result, expected)
+  }
+
   test("SeqDecoder should keep track of cursor history on failure") {
     val payload = Json.obj(
       "outer" -> Json.arr(

@@ -49,7 +49,13 @@ object Implicits extends ArbitraryInstances {
 ```
 
 The presence of those implicit values and an import from the `circe-testing` module
-will allow you to create a `CodecTests[Person]`:
+will allow you to create a `CodecTests[Person]`. First, the dependency:
+
+```scala
+libraryDependencies += "io.circe" %% "circe-testing" % "@VERSION@"
+```
+
+Then, the tests:
 
 ```scala mdoc
 import io.circe.testing.CodecTests

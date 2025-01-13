@@ -24,10 +24,10 @@ concurrency:
 
 jobs:
   build:
-    name: Build and Test
+    name: Test
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         scala: [3, 2.12, 2.13]
         java: [temurin@8, temurin@11, temurin@17]
         project: [rootJS, rootJVM, rootNative]
@@ -51,14 +51,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
-      - name: Install sbt
-        if: contains(runner.os, 'macos')
-        run: brew install sbt
-
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Setup Java (temurin@8)
         id: setup-java-temurin-8
@@ -103,7 +102,7 @@ jobs:
         run: sbt githubWorkflowCheck
 
       - name: Check headers and formatting
-        if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-latest'
+        if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-22.04'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' headerCheckAll scalafmtCheckAll 'project /' scalafmtSbtCheck
 
       - name: scalaJSLink
@@ -118,20 +117,20 @@ jobs:
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' test
 
       - name: Check binary compatibility
-        if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-latest'
+        if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-22.04'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' mimaReportBinaryIssues
 
       - name: Generate API documentation
-        if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-latest'
+        if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-22.04'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
-        run: mkdir -p modules/shapes/.js/target modules/literal/.native/target modules/numbers-testing/.jvm/target modules/testing/jvm/target modules/generic/jvm/target modules/shapes/.native/target modules/generic-simple/.jvm/target modules/numbers/native/target modules/literal/.jvm/target modules/parser/jvm/target modules/literal/.js/target modules/parser/js/target modules/scalajs/target modules/core/native/target modules/shapes/.jvm/target modules/testing/native/target modules/generic-simple/.native/target modules/jawn/jvm/target modules/parser/native/target modules/core/js/target modules/testing/js/target modules/generic/js/target modules/jawn/js/target modules/numbers-testing/.native/target modules/core/jvm/target modules/pointer-literal/.js/target modules/refined/native/target modules/numbers-testing/.js/target modules/pointer/.js/target modules/refined/js/target modules/pointer/.jvm/target modules/pointer-literal/.jvm/target modules/pointer-literal/.native/target modules/scodec/jvm/target modules/scodec/js/target modules/refined/jvm/target modules/jawn/native/target modules/numbers/js/target modules/pointer/.native/target modules/generic/native/target modules/generic-simple/.js/target modules/scodec/native/target modules/numbers/jvm/target project/target
+        run: mkdir -p modules/shapes/.js/target modules/literal/.native/target modules/numbers-testing/.jvm/target modules/testing/jvm/target modules/generic/jvm/target modules/shapes/.native/target modules/generic-simple/.jvm/target modules/numbers/native/target modules/literal/.jvm/target modules/parser/jvm/target modules/literal/.js/target modules/parser/js/target modules/scalajs/target modules/core/native/target modules/shapes/.jvm/target modules/testing/native/target modules/generic-simple/.native/target modules/jawn/jvm/target modules/parser/native/target modules/core/js/target modules/testing/js/target modules/generic/js/target modules/jawn/js/target modules/numbers-testing/.native/target modules/core/jvm/target modules/pointer-literal/.js/target modules/numbers-testing/.js/target modules/pointer/.js/target modules/pointer/.jvm/target modules/pointer-literal/.jvm/target modules/pointer-literal/.native/target modules/scodec/jvm/target modules/scodec/js/target modules/jawn/native/target modules/numbers/js/target modules/pointer/.native/target modules/generic/native/target modules/generic-simple/.js/target modules/scodec/native/target modules/numbers/jvm/target project/target
 
       - name: Compress target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
-        run: tar cf targets.tar modules/shapes/.js/target modules/literal/.native/target modules/numbers-testing/.jvm/target modules/testing/jvm/target modules/generic/jvm/target modules/shapes/.native/target modules/generic-simple/.jvm/target modules/numbers/native/target modules/literal/.jvm/target modules/parser/jvm/target modules/literal/.js/target modules/parser/js/target modules/scalajs/target modules/core/native/target modules/shapes/.jvm/target modules/testing/native/target modules/generic-simple/.native/target modules/jawn/jvm/target modules/parser/native/target modules/core/js/target modules/testing/js/target modules/generic/js/target modules/jawn/js/target modules/numbers-testing/.native/target modules/core/jvm/target modules/pointer-literal/.js/target modules/refined/native/target modules/numbers-testing/.js/target modules/pointer/.js/target modules/refined/js/target modules/pointer/.jvm/target modules/pointer-literal/.jvm/target modules/pointer-literal/.native/target modules/scodec/jvm/target modules/scodec/js/target modules/refined/jvm/target modules/jawn/native/target modules/numbers/js/target modules/pointer/.native/target modules/generic/native/target modules/generic-simple/.js/target modules/scodec/native/target modules/numbers/jvm/target project/target
+        run: tar cf targets.tar modules/shapes/.js/target modules/literal/.native/target modules/numbers-testing/.jvm/target modules/testing/jvm/target modules/generic/jvm/target modules/shapes/.native/target modules/generic-simple/.jvm/target modules/numbers/native/target modules/literal/.jvm/target modules/parser/jvm/target modules/literal/.js/target modules/parser/js/target modules/scalajs/target modules/core/native/target modules/shapes/.jvm/target modules/testing/native/target modules/generic-simple/.native/target modules/jawn/jvm/target modules/parser/native/target modules/core/js/target modules/testing/js/target modules/generic/js/target modules/jawn/js/target modules/numbers-testing/.native/target modules/core/jvm/target modules/pointer-literal/.js/target modules/numbers-testing/.js/target modules/pointer/.js/target modules/pointer/.jvm/target modules/pointer-literal/.jvm/target modules/pointer-literal/.native/target modules/scodec/jvm/target modules/scodec/js/target modules/jawn/native/target modules/numbers/js/target modules/pointer/.native/target modules/generic/native/target modules/generic-simple/.js/target modules/scodec/native/target modules/numbers/jvm/target project/target
 
       - name: Upload target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
@@ -146,18 +145,17 @@ jobs:
     if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         java: [temurin@8]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install sbt
-        if: contains(runner.os, 'macos')
-        run: brew install sbt
-
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Setup Java (temurin@8)
         id: setup-java-temurin-8
@@ -314,21 +312,20 @@ jobs:
 
   dependency-submission:
     name: Submit Dependencies
-    if: github.event_name != 'pull_request'
+    if: github.event.repository.fork == false && github.event_name != 'pull_request'
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         java: [temurin@8]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install sbt
-        if: contains(runner.os, 'macos')
-        run: brew install sbt
-
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Setup Java (temurin@8)
         id: setup-java-temurin-8
@@ -379,7 +376,7 @@ jobs:
     name: Validate Steward Config
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         java: [temurin@11]
     runs-on: ${{ matrix.os }}
     steps:
@@ -404,11 +401,14 @@ jobs:
     name: Generate coverage report
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         scala: [3, 2.12, 2.13]
         java: [temurin@11]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Checkout current branch (fast)
         uses: actions/checkout@v4
 
@@ -427,7 +427,7 @@ jobs:
 
       - run: sbt '++ ${{ matrix.scala }}' coverage rootJVM/test coverageAggregate
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: ${{matrix.scala}}
 
@@ -435,18 +435,17 @@ jobs:
     name: Generate Site
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         java: [temurin@11]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install sbt
-        if: contains(runner.os, 'macos')
-        run: brew install sbt
-
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Setup Java (temurin@8)
         id: setup-java-temurin-8
