@@ -54,7 +54,6 @@ class ConfiguredEnumDerivesSuites extends CirceMunitSuite:
           case SingletonCase
           case NonSingletonCase(field: Int)""")
     val expectedError = """error: Enum "WithNonSingletonCase" contains non singleton case "NonSingletonCase""""
-    println(error)
     assert(error.contains(expectedError) == true)
   }
 
