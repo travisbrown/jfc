@@ -21,7 +21,9 @@ import scala.deriving.Mirror
 import io.circe.{ Codec, Decoder, Encoder }
 
 private[circe] inline final def summonLabels[T <: Tuple]: List[String] =
-  loopUnrolled[String, T](constString)
+  loopUnrolledNoArg[String, T](
+    constString,
+  )
 
 @deprecated("Use summonEncoders(derivingForSum: Boolean) instead", "0.14.7")
 private[circe] inline final def summonEncoders[T <: Tuple](using Configuration): List[Encoder[_]] =
@@ -30,7 +32,7 @@ private[circe] inline final def summonEncoders[T <: Tuple](using Configuration):
 private[circe] inline final def summonEncoders[T <: Tuple](inline derivingForSum: Boolean)(using
   Configuration
 ): List[Encoder[_]] =
-  loopUnrolled[Encoder[_], T](
+  loopUnrolledNoArg[Encoder[_], T](
     inline if (derivingForSum) new EncoderDeriveSum else new EncoderNotDeriveSum
   )
 
@@ -53,7 +55,7 @@ private[circe] inline final def summonDecoders[T <: Tuple](using Configuration):
 private[circe] inline final def summonDecoders[T <: Tuple](inline derivingForSum: Boolean)(using
   Configuration
 ): List[Decoder[_]] =
-  loopUnrolled[Decoder[_], T](
+  loopUnrolledNoArg[Decoder[_], T](
     inline if (derivingForSum) new DecoderDeriveSum else new DecoderNotDeriveSum
   )
 
@@ -70,40 +72,45 @@ private[circe] inline final def summonDecoder[A](inline derivingForSum: Boolean)
   }
 
 private[circe] inline def summonSingletonCases[T <: Tuple, A](inline typeName: Any): List[A] =
-  loopUnrolled[A, T](new SummonSingleton[A](typeName))
+  loopUnrolled[A, Any, T](new SummonSingleton[A], typeName)
 
-private[circe] inline final def loopUnrolled[A, T <: Tuple](f: Inliner[A]): List[A] =
+private[circe] inline final def loopUnrolled[A, Arg, T <: Tuple](f: Inliner[A, Arg], inline arg: Arg): List[A] =
   inline erasedValue[T] match
     case _: EmptyTuple => Nil
     case _: (h1 *: h2 *: h3 *: h4 *: h5 *: h6 *: h7 *: h8 *: h9 *: h10 *: h11 *: h12 *: h13 *: h14 *: h15 *: h16 *:
           ts) =>
-      f[h1] :: f[h2] :: f[h3] :: f[h4] :: f[h5] :: f[h6] :: f[h7] :: f[h8]
-        :: f[h9] :: f[h10] :: f[h11] :: f[h12] :: f[h13] :: f[h14] :: f[h15] :: f[h16]
-        :: loopUnrolled[A, ts](f)
+      f[h1](arg) :: f[h2](arg) :: f[h3](arg) :: f[h4](arg) :: f[h5](arg) :: f[h6](arg) :: f[h7](arg) :: f[h8](arg)
+        :: f[h9](arg) :: f[h10](arg) :: f[h11](arg) :: f[h12](arg) :: f[h13](arg) :: f[h14](arg) :: f[h15](arg) :: f[
+          h16
+        ](arg)
+        :: loopUnrolled[A, Arg, ts](f, arg)
     case _: (h1 *: h2 *: h3 *: h4 *: ts) =>
-      f[h1] :: f[h2] :: f[h3] :: f[h4] :: loopUnrolled[A, ts](f)
-    case _: (h *: ts) => f[h] :: loopUnrolled[A, ts](f)
+      f[h1](arg) :: f[h2](arg) :: f[h3](arg) :: f[h4](arg) :: loopUnrolled[A, Arg, ts](f, arg)
+    case _: (h *: ts) => f[h](arg) :: loopUnrolled[A, Arg, ts](f, arg)
 
-private[circe] abstract class Inliner[A]:
-  inline def apply[T]: A
+private[circe] inline def loopUnrolledNoArg[A, T <: Tuple](f: Inliner[A, Unit]): List[A] =
+  loopUnrolled[A, Unit, T](f, ())
 
-private[circe] object constString extends Inliner[String]:
-  inline def apply[T]: String = constValue[T].asInstanceOf[String]
+private[circe] abstract class Inliner[A, Arg]:
+  inline def apply[T](inline arg: Arg): A
 
-private[circe] class EncoderDeriveSum(using config: Configuration) extends Inliner[Encoder[?]]:
-  inline def apply[T]: Encoder[?] = summonEncoder[T](true)
+private[circe] object constString extends Inliner[String, Unit]:
+  inline def apply[T](inline arg: Unit): String = constValue[T].asInstanceOf[String]
 
-private[circe] class EncoderNotDeriveSum(using config: Configuration) extends Inliner[Encoder[?]]:
-  inline def apply[T]: Encoder[?] = summonEncoder[T](false)
+private[circe] class EncoderDeriveSum(using config: Configuration) extends Inliner[Encoder[?], Unit]:
+  inline def apply[T](inline arg: Unit): Encoder[?] = summonEncoder[T](true)
 
-private[circe] class DecoderDeriveSum(using Configuration) extends Inliner[Decoder[?]]:
-  inline def apply[T]: Decoder[?] = summonDecoder[T](true)
+private[circe] class EncoderNotDeriveSum(using config: Configuration) extends Inliner[Encoder[?], Unit]:
+  inline def apply[T](inline arg: Unit): Encoder[?] = summonEncoder[T](false)
 
-private[circe] class DecoderNotDeriveSum(using Configuration) extends Inliner[Decoder[?]]:
-  inline def apply[T]: Decoder[?] = summonDecoder[T](false)
+private[circe] class DecoderDeriveSum(using Configuration) extends Inliner[Decoder[?], Unit]:
+  inline def apply[T](inline arg: Unit): Decoder[?] = summonDecoder[T](true)
 
-private[circe] class SummonSingleton[A](typeName: Any) extends Inliner[A]:
-  inline def apply[T]: A =
+private[circe] class DecoderNotDeriveSum(using Configuration) extends Inliner[Decoder[?], Unit]:
+  inline def apply[T](inline arg: Unit): Decoder[?] = summonDecoder[T](false)
+
+private[circe] class SummonSingleton[A] extends Inliner[A, Any]:
+  inline def apply[T](inline typeName: Any): A =
     inline summonInline[Mirror.Of[T]] match
       case m: Mirror.Singleton => m.fromProduct(EmptyTuple).asInstanceOf[A]
       case m: Mirror =>
