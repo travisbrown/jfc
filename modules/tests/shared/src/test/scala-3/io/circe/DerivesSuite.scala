@@ -223,6 +223,49 @@ object DerivesSuite {
     given Eq[Outer] = Eq.fromUniversalEquals
     given Arbitrary[Outer] =
       Arbitrary(Gen.option(Arbitrary.arbitrary[String].map(Inner.apply)).map(Outer.apply))
+
+  case class LongClass(
+    v1: String,
+    v2: String,
+    v3: String,
+    v4: String,
+    v5: String,
+    v6: String,
+    v7: String,
+    v8: String,
+    v9: String,
+    v10: String,
+    v11: String,
+    v12: String,
+    v13: String,
+    v14: String,
+    v15: String,
+    v16: String,
+    v17: String,
+    v18: String,
+    v19: String,
+    v20: String,
+    v21: String,
+    v22: String,
+    v23: String,
+    v24: String,
+    v25: String,
+    v26: String,
+    v27: String,
+    v28: String,
+    v29: String,
+    v30: String,
+    v31: String,
+    v32: String,
+    v33: String
+  ) derives Encoder,
+        Decoder
+
+  enum LongEnum derives Encoder, Decoder:
+    case v1, v2, v3, v4, v5, v6, v7, v8, v9, v10,
+      v11, v12, v13, v14, v15, v16, v17, v18, v19, v20,
+      v21, v22, v23, v24, v25, v26, v27, v28, v29, v30,
+      v31, v32, v33
 }
 
 class DerivesSuite extends CirceMunitSuite {
