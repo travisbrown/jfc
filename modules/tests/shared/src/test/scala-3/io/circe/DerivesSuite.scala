@@ -266,6 +266,41 @@ object DerivesSuite {
       v11, v12, v13, v14, v15, v16, v17, v18, v19, v20,
       v21, v22, v23, v24, v25, v26, v27, v28, v29, v30,
       v31, v32, v33
+
+  enum LongSum derives Encoder, Decoder:
+    case v1(str: String)
+    case v2(str: String)
+    case v3(str: String)
+    case v4(str: String)
+    case v5(str: String)
+    case v6(str: String)
+    case v7(str: String)
+    case v8(str: String)
+    case v9(str: String)
+    case v10(str: String)
+    case v11(str: String)
+    case v12(str: String)
+    case v13(str: String)
+    case v14(str: String)
+    case v15(str: String)
+    case v16(str: String)
+    case v17(str: String)
+    case v18(str: String)
+    case v19(str: String)
+    case v20(str: String)
+    case v21(str: String)
+    case v22(str: String)
+    case v23(str: String)
+    case v24(str: String)
+    case v25(str: String)
+    case v26(str: String)
+    case v27(str: String)
+    case v28(str: String)
+    case v29(str: String)
+    case v30(str: String)
+    case v31(str: String)
+    case v32(str: String)
+    case v33(str: String)
 }
 
 class DerivesSuite extends CirceMunitSuite {
