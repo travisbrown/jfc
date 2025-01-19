@@ -22,7 +22,7 @@ import io.circe.{ Codec, Decoder, Encoder }
 
 private[circe] inline final def summonLabels[T <: Tuple]: List[String] =
   loopUnrolledNoArg[String, T](
-    constString,
+    constString
   )
 
 @deprecated("Use summonEncoders(derivingForSum: Boolean) instead", "0.14.7")
@@ -91,23 +91,23 @@ private[circe] inline final def loopUnrolled[A, Arg, T <: Tuple](f: Inliner[A, A
 private[circe] inline def loopUnrolledNoArg[A, T <: Tuple](f: Inliner[A, Unit]): List[A] =
   loopUnrolled[A, Unit, T](f, ())
 
-private[circe] abstract class Inliner[A, Arg]:
+private[circe] trait Inliner[A, Arg]:
   inline def apply[T](inline arg: Arg): A
 
 private[circe] object constString extends Inliner[String, Unit]:
   inline def apply[T](inline arg: Unit): String = constValue[T].asInstanceOf[String]
 
-private[circe] class EncoderDeriveSum(using config: Configuration) extends Inliner[Encoder[?], Unit]:
-  inline def apply[T](inline arg: Unit): Encoder[?] = summonEncoder[T](true)
+private[circe] class EncoderDeriveSum(using config: Configuration) extends Inliner[Encoder[_], Unit]:
+  inline def apply[T](inline arg: Unit): Encoder[_] = summonEncoder[T](true)
 
-private[circe] class EncoderNotDeriveSum(using config: Configuration) extends Inliner[Encoder[?], Unit]:
-  inline def apply[T](inline arg: Unit): Encoder[?] = summonEncoder[T](false)
+private[circe] class EncoderNotDeriveSum(using config: Configuration) extends Inliner[Encoder[_], Unit]:
+  inline def apply[T](inline arg: Unit): Encoder[_] = summonEncoder[T](false)
 
-private[circe] class DecoderDeriveSum(using Configuration) extends Inliner[Decoder[?], Unit]:
-  inline def apply[T](inline arg: Unit): Decoder[?] = summonDecoder[T](true)
+private[circe] class DecoderDeriveSum(using Configuration) extends Inliner[Decoder[_], Unit]:
+  inline def apply[T](inline arg: Unit): Decoder[_] = summonDecoder[T](true)
 
-private[circe] class DecoderNotDeriveSum(using Configuration) extends Inliner[Decoder[?], Unit]:
-  inline def apply[T](inline arg: Unit): Decoder[?] = summonDecoder[T](false)
+private[circe] class DecoderNotDeriveSum(using Configuration) extends Inliner[Decoder[_], Unit]:
+  inline def apply[T](inline arg: Unit): Decoder[_] = summonDecoder[T](false)
 
 private[circe] class SummonSingleton[A] extends Inliner[A, Any]:
   inline def apply[T](inline typeName: Any): A =
