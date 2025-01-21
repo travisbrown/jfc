@@ -98,16 +98,16 @@ private[circe] object constString extends Inliner[String, Unit]:
   inline def apply[T](inline arg: Unit): String = constValue[T].asInstanceOf[String]
 
 private[circe] class EncoderDeriveSum(using config: Configuration) extends Inliner[Encoder[_], Unit]:
-  inline def apply[T](inline arg: Unit): Encoder[_] = summonEncoder[T](true)
+  inline def apply[T](inline arg: Unit): Encoder[?] = summonEncoder[T](true)
 
 private[circe] class EncoderNotDeriveSum(using config: Configuration) extends Inliner[Encoder[_], Unit]:
-  inline def apply[T](inline arg: Unit): Encoder[_] = summonEncoder[T](false)
+  inline def apply[T](inline arg: Unit): Encoder[?] = summonEncoder[T](false)
 
 private[circe] class DecoderDeriveSum(using Configuration) extends Inliner[Decoder[_], Unit]:
-  inline def apply[T](inline arg: Unit): Decoder[_] = summonDecoder[T](true)
+  inline def apply[T](inline arg: Unit): Decoder[?] = summonDecoder[T](true)
 
 private[circe] class DecoderNotDeriveSum(using Configuration) extends Inliner[Decoder[_], Unit]:
-  inline def apply[T](inline arg: Unit): Decoder[_] = summonDecoder[T](false)
+  inline def apply[T](inline arg: Unit): Decoder[?] = summonDecoder[T](false)
 
 private[circe] class SummonSingleton[A] extends Inliner[A, Any]:
   inline def apply[T](inline typeName: Any): A =
