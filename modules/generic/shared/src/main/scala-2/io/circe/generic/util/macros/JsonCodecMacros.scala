@@ -52,10 +52,10 @@ abstract class JsonCodecMacros {
     case _ => c.abort(c.enclosingPosition, "Invalid annotation target: must be a case class or a sealed trait/class")
   }
 
-  private[this] val DecoderClass = typeOf[Decoder[_]].typeSymbol.asType
-  private[this] val EncoderClass = typeOf[Encoder[_]].typeSymbol.asType
-  private[this] val AsObjectEncoderClass = typeOf[Encoder.AsObject[_]].typeSymbol.asType
-  private[this] val AsObjectCodecClass = typeOf[Codec.AsObject[_]].typeSymbol.asType
+  private[this] val DecoderClass = typeOf[Decoder[?]].typeSymbol.asType
+  private[this] val EncoderClass = typeOf[Encoder[?]].typeSymbol.asType
+  private[this] val AsObjectEncoderClass = typeOf[Encoder.AsObject[?]].typeSymbol.asType
+  private[this] val AsObjectCodecClass = typeOf[Codec.AsObject[?]].typeSymbol.asType
 
   private[this] val macroName: Tree = {
     c.prefix.tree match {

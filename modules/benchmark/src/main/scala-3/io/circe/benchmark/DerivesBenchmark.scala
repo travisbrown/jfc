@@ -19,7 +19,7 @@ package io.circe.benchmark
 import cats.kernel.Eq
 import io.circe.{ Codec, Decoder, Encoder, HCursor, Json }
 import java.util.concurrent.TimeUnit
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 
 case class Foo(s: String, d: Double, i: Int, l: Long, bs: List[Boolean]) derives Codec.AsObject
 

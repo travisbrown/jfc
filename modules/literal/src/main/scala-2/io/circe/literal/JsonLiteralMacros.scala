@@ -53,7 +53,7 @@ class JsonLiteralMacros(val c: blackbox.Context) {
 
   private[this] abstract class Handler(replacements: Seq[Replacement]) extends InvocationHandler {
     protected[this] def invokeWithoutArgs: String => Object
-    protected[this] def invokeWithArgs: (String, Array[Class[_]], Array[Object]) => Object
+    protected[this] def invokeWithArgs: (String, Array[Class[?]], Array[Object]) => Object
 
     final def invoke(proxy: Object, method: Method, args: Array[Object]): Object =
       if (args.eq(null)) {
@@ -67,7 +67,7 @@ class JsonLiteralMacros(val c: blackbox.Context) {
     protected[this] final def toJsonString(s: CharSequence): Tree =
       replacements.find(_.placeholder == s).fold(q"_root_.io.circe.Json.fromString(${s.toString})")(_.asJson)
 
-    final def asProxy(cls: Class[_]): Object = Proxy.newProxyInstance(getClass.getClassLoader, Array(cls), this)
+    final def asProxy(cls: Class[?]): Object = Proxy.newProxyInstance(getClass.getClassLoader, Array(cls), this)
   }
 
   private[this] class SingleContextHandler(replacements: Seq[Replacement]) extends Handler(replacements) {
@@ -78,7 +78,7 @@ class JsonLiteralMacros(val c: blackbox.Context) {
       case "isObj"  => java.lang.Boolean.FALSE
     }
 
-    protected[this] val invokeWithArgs: (String, Array[Class[_]], Array[Object]) => Object = {
+    protected[this] val invokeWithArgs: (String, Array[Class[?]], Array[Object]) => Object = {
       case ("finish", _, _) => value
       case ("isObj", _, _)  => java.lang.Boolean.FALSE
       case ("add", Array(cls), Array(arg: CharSequence)) if cls == classOf[CharSequence] =>
@@ -107,7 +107,7 @@ class JsonLiteralMacros(val c: blackbox.Context) {
       case "isObj"  => java.lang.Boolean.FALSE
     }
 
-    protected[this] val invokeWithArgs: (String, Array[Class[_]], Array[Object]) => Object = {
+    protected[this] val invokeWithArgs: (String, Array[Class[?]], Array[Object]) => Object = {
       case ("finish", _, _) => q"_root_.io.circe.Json.arr(..$values)"
       case ("isObj", _, _)  => java.lang.Boolean.FALSE
       case ("add", Array(cls), Array(arg: CharSequence)) if cls == classOf[CharSequence] =>
@@ -137,7 +137,7 @@ class JsonLiteralMacros(val c: blackbox.Context) {
       case "isObj"  => java.lang.Boolean.TRUE
     }
 
-    protected[this] val invokeWithArgs: (String, Array[Class[_]], Array[Object]) => Object = {
+    protected[this] val invokeWithArgs: (String, Array[Class[?]], Array[Object]) => Object = {
       case ("finish", _, _) => q"_root_.io.circe.Json.obj(..$fields)"
       case ("isObj", _, _)  => java.lang.Boolean.TRUE
       case ("add", Array(cls), Array(arg: CharSequence)) if cls == classOf[CharSequence] =>
@@ -191,7 +191,7 @@ class JsonLiteralMacros(val c: blackbox.Context) {
       case "objectContext" => new ObjectContextHandler(replacements).asProxy(jawnFContextClass)
     }
 
-    protected[this] val invokeWithArgs: (String, Array[Class[_]], Array[Object]) => Object = {
+    protected[this] val invokeWithArgs: (String, Array[Class[?]], Array[Object]) => Object = {
       // format: off
       case ("jnull", _, _)         => q"_root_.io.circe.Json.Null"
       case ("jfalse", _, _)        => q"_root_.io.circe.Json.False"

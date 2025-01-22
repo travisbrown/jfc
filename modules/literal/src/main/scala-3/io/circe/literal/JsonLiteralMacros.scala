@@ -26,7 +26,7 @@ object JsonLiteralMacros {
   def jsonImpl(sc: Expr[StringContext], args: Expr[Seq[Any]])(using q: Quotes): Expr[Json] = {
     import q.reflect.*
     val stringParts = sc match {
-      case '{ StringContext($parts: _*) } => parts.valueOrAbort
+      case '{ StringContext($parts*) } => parts.valueOrAbort
     }
 
     val replacements = args match {
@@ -58,7 +58,7 @@ object JsonLiteralMacros {
           values = '{ $strExpr :: $values }
         }
         def add(v: Expr[Json]): Unit = values = '{ $v :: ${ values } }
-        def finish(): Expr[Json] = '{ Json.arr($values.reverse: _*) }
+        def finish(): Expr[Json] = '{ Json.arr($values.reverse*) }
       }
       def jfalse(index: Int): Expr[Json] = '{ Json.False }
       def jnull(index: Int): Expr[Json] = '{ Json.Null }
@@ -88,7 +88,7 @@ object JsonLiteralMacros {
           fields = '{ ($keyExpr, $v) :: $fields }
           key = null
         }
-        def finish(): Expr[Json] = '{ Json.obj($fields.reverse: _*) }
+        def finish(): Expr[Json] = '{ Json.obj($fields.reverse*) }
       }
       def singleContext(index: Int): FContext[Expr[Json]] = new FContext.NoIndexFContext[Expr[Json]] {
         private[this] var value: Expr[Json] = null

@@ -17,8 +17,8 @@
 package io.circe
 
 import cats.kernel.Eq
-import cats.kernel.instances.all._
-import cats.syntax.eq._
+import cats.kernel.instances.all.*
+import cats.syntax.eq.*
 import io.circe.{ Codec, Decoder, Encoder, Json }
 import io.circe.testing.CodecTests
 import io.circe.tests.CirceMunitSuite
@@ -226,8 +226,8 @@ object DerivesSuite {
 }
 
 class DerivesSuite extends CirceMunitSuite {
-  import DerivesSuite._
-  import io.circe.syntax._
+  import DerivesSuite.*
+  import io.circe.syntax.*
 
   checkAll("Codec[Box[Wub]]", CodecTests[Box[Wub]].codec)
   checkAll("Codec[Box[Long]]", CodecTests[Box[Long]].codec)

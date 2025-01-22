@@ -149,4 +149,4 @@ trait ArbitraryInstances extends ArbitraryJsonNumberTransformer with CogenInstan
   )
 }
 
-object ArbitraryInstances {}
+object ArbitraryInstances extends ArbitraryInstances

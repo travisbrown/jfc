@@ -16,7 +16,7 @@
 
 package io.circe.pointer.literal
 
-import io.circe.pointer._
+import io.circe.pointer.*
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop
 

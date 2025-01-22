@@ -22,7 +22,7 @@ class ExportMacros(val c: blackbox.Context) {
   import c.universe._
 
   final def exportDecoder[D[x] <: DerivedDecoder[x], A](implicit
-    D: c.WeakTypeTag[D[_]],
+    D: c.WeakTypeTag[D[?]],
     A: c.WeakTypeTag[A]
   ): c.Expr[Exported[Decoder[A]]] = {
     val target = appliedType(D.tpe.typeConstructor, A.tpe)
@@ -37,7 +37,7 @@ class ExportMacros(val c: blackbox.Context) {
   }
 
   final def exportEncoder[E[x] <: DerivedAsObjectEncoder[x], A](implicit
-    E: c.WeakTypeTag[E[_]],
+    E: c.WeakTypeTag[E[?]],
     A: c.WeakTypeTag[A]
   ): c.Expr[Exported[Encoder.AsObject[A]]] = {
     val target = appliedType(E.tpe.typeConstructor, A.tpe)

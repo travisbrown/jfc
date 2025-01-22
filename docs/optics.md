@@ -8,7 +8,7 @@ circe provides support for optics by integrating with [Monocle](https://julien-t
 dependency on `circe-optics` to your build:
 
 ```scala
-libraryDependencies += "io.circe" %% "circe-optics" % circeVersion
+libraryDependencies += "io.circe" %% "circe-optics" % "@CIRCE_OPTICS_VERSION@"
 ```
 
 Note that this will require your project to depend on both Scalaz and cats.

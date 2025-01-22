@@ -38,12 +38,12 @@ class Deriver(val c: whitebox.Context)
     c.Expr[ReprAsObjectEncoder[R]](constructEncoder[R])
   def deriveCodec[R: c.WeakTypeTag]: c.Expr[ReprAsObjectCodec[R]] = c.Expr[ReprAsObjectCodec[R]](constructCodec[R])
 
-  protected[this] val RD: TypeTag[ReprDecoder[_]] = c.typeTag
-  protected[this] val RE: TypeTag[ReprAsObjectEncoder[_]] = c.typeTag
-  protected[this] val RC: TypeTag[ReprAsObjectCodec[_]] = c.typeTag
-  protected[this] val DD: TypeTag[DerivedDecoder[_]] = c.typeTag
-  protected[this] val DE: TypeTag[DerivedAsObjectEncoder[_]] = c.typeTag
-  protected[this] val DC: TypeTag[DerivedAsObjectCodec[_]] = c.typeTag
+  protected[this] val RD: TypeTag[ReprDecoder[?]] = c.typeTag
+  protected[this] val RE: TypeTag[ReprAsObjectEncoder[?]] = c.typeTag
+  protected[this] val RC: TypeTag[ReprAsObjectCodec[?]] = c.typeTag
+  protected[this] val DD: TypeTag[DerivedDecoder[?]] = c.typeTag
+  protected[this] val DE: TypeTag[DerivedAsObjectEncoder[?]] = c.typeTag
+  protected[this] val DC: TypeTag[DerivedAsObjectCodec[?]] = c.typeTag
 
   protected[this] val hnilReprDecoder: Tree = q"_root_.io.circe.generic.decoding.ReprDecoder.hnilReprDecoder"
   protected[this] val hnilReprCodec: Tree = q"_root_.io.circe.generic.codec.ReprAsObjectCodec.hnilReprCodec"

@@ -52,7 +52,7 @@ class ArraySeqSuite extends CirceMunitSuite {
       val jsonArray = Json.arr(intArray.map(_.asJson).toIndexedSeq: _*)
 
       decodeArraySeqWithoutClassTag[Int](jsonArray).map(_.getClass) ?= Right(
-        classOf[ArraySeq.ofRef[_]].asInstanceOf[Class[_ <: ArraySeq[Int]]]
+        classOf[ArraySeq.ofRef[?]].asInstanceOf[Class[? <: ArraySeq[Int]]]
       )
     }
   }

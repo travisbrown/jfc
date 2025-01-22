@@ -28,12 +28,12 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
 
   import c.universe._
 
-  protected[this] def RD: TypeTag[RD[_]]
-  protected[this] def RE: TypeTag[RE[_]]
-  protected[this] def RC: TypeTag[RC[_]]
-  protected[this] def DD: TypeTag[DD[_]]
-  protected[this] def DE: TypeTag[DE[_]]
-  protected[this] def DC: TypeTag[DC[_]]
+  protected[this] def RD: TypeTag[RD[?]]
+  protected[this] def RE: TypeTag[RE[?]]
+  protected[this] def RC: TypeTag[RC[?]]
+  protected[this] def DD: TypeTag[DD[?]]
+  protected[this] def DE: TypeTag[DE[?]]
+  protected[this] def DC: TypeTag[DC[?]]
 
   protected[this] def hnilReprDecoder: Tree
   protected[this] def hnilReprCodec: Tree
@@ -126,11 +126,11 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
   private[this] object Members {
     private[this] val ShapelessSym = typeOf[HList].typeSymbol.owner
     private[this] val HNilSym = typeOf[HNil].typeSymbol
-    private[this] val HConsSym = typeOf[shapeless.::[_, _]].typeSymbol
+    private[this] val HConsSym = typeOf[shapeless.::[?, ?]].typeSymbol
     private[this] val CNilSym = typeOf[CNil].typeSymbol
-    private[this] val CConsSym = typeOf[shapeless.:+:[_, _]].typeSymbol
+    private[this] val CConsSym = typeOf[shapeless.:+:[?, ?]].typeSymbol
     private[this] val ShapelessLabelledType = typeOf[shapeless.labelled.type]
-    private[this] val KeyTagSym = typeOf[KeyTag[_, _]].typeSymbol
+    private[this] val KeyTagSym = typeOf[KeyTag[?, ?]].typeSymbol
     private[this] val ShapelessTagType = typeOf[shapeless.tag.type]
     private[this] val ScalaSymbolType = typeOf[scala.Symbol]
 
@@ -188,7 +188,7 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
   private[this] def resolveInstance(tcs: List[(Type, Boolean)])(tpe: Type): Tree = tcs match {
     case (tc, lazily) :: rest =>
       val applied = c.universe.appliedType(tc.typeConstructor, List(tpe))
-      val target = if (lazily) c.universe.appliedType(typeOf[Lazy[_]].typeConstructor, List(applied)) else applied
+      val target = if (lazily) c.universe.appliedType(typeOf[Lazy[?]].typeConstructor, List(applied)) else applied
       val inferred = c.inferImplicitValue(target, silent = true)
 
       inferred match {
@@ -203,7 +203,7 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
 
   private[this] def hlistDecoderParts(members: Members): (List[c.Tree], (c.Tree, c.Tree)) =
     members.fold("circeGenericDecoderFor")(
-      resolveInstance(List((typeOf[Decoder[_]], false)))
+      resolveInstance(List((typeOf[Decoder[?]], false)))
     )((q"$ReprDecoderUtils.hnilResult": Tree, q"$ReprDecoderUtils.hnilResultAccumulating": Tree)) {
       case (Member(label, nameTpe, tpe, _, accTail), instanceName, (acc, accAccumulating)) =>
         (
@@ -246,7 +246,7 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
 
   private[this] def coproductDecoderParts(members: Members): (List[c.Tree], (c.Tree, c.Tree)) =
     members.fold("circeGenericDecoderFor")(
-      resolveInstance(List((typeOf[Decoder[_]], false), (DD.tpe, true)))
+      resolveInstance(List((typeOf[Decoder[?]], false), (DD.tpe, true)))
     )((cnilResult, cnilResultAccumulating)) {
       case (Member(label, nameTpe, tpe, _, accTail), instanceName, (acc, accAccumulating)) =>
         (
@@ -307,7 +307,7 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
 
   protected[this] def hlistEncoderParts(members: Members): (List[c.Tree], c.Tree) = {
     val (instanceDefs, (pattern, fields)) =
-      members.fold("circeGenericEncoderFor")(resolveInstance(List((typeOf[Encoder[_]], false))))(
+      members.fold("circeGenericEncoderFor")(resolveInstance(List((typeOf[Encoder[?]], false))))(
         (pq"_root_.shapeless.HNil": Tree, List.empty[Tree])
       ) {
         case (Member(label, _, tpe, _, _), instanceName, (patternAcc, fieldsAcc)) =>
@@ -332,7 +332,7 @@ abstract class DerivationMacros[RD[_], RE[_], RC[_], DD[_], DE[_], DC[_]] {
 
   private[this] def coproductEncoderParts(members: Members): (List[c.Tree], c.Tree) = {
     val (instanceDefs, patternAndCase) = members.fold("circeGenericEncoderFor")(
-      resolveInstance(List((typeOf[Encoder[_]], false), (DE.tpe, true)))
+      resolveInstance(List((typeOf[Encoder[?]], false), (DE.tpe, true)))
     )(
       cq"""_root_.shapeless.Inr(_) => _root_.scala.sys.error("Cannot encode CNil")"""
     ) {

@@ -31,10 +31,10 @@ package object scalajs {
     case true           => Json.True
     case false          => Json.False
     case null           => Json.Null
-    case a: js.Array[_] => Json.fromValues(a.map(convertAnyToJsonUnsafe(_: Any)))
+    case a: js.Array[?] => Json.fromValues(a.map(convertAnyToJsonUnsafe(_: Any)))
     case o: js.Object =>
       Json.fromFields(
-        o.asInstanceOf[js.Dictionary[_]].mapValues(convertAnyToJsonUnsafe).toSeq
+        o.asInstanceOf[js.Dictionary[?]].mapValues(convertAnyToJsonUnsafe).toSeq
       )
     case other if js.isUndefined(other) => Json.Null
   }

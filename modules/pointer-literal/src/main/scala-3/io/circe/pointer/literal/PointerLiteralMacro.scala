@@ -17,7 +17,7 @@
 package io.circe.pointer.literal
 
 import io.circe.pointer.Pointer
-import scala.quoted._
+import scala.quoted.*
 import scala.language.`3.0`
 
 private object PointerLiteralMacros {
@@ -25,7 +25,7 @@ private object PointerLiteralMacros {
   final def pointerImpl(sc: Expr[StringContext], argsExpr: Expr[Seq[Any]])(using q: Quotes): Expr[Pointer] = {
     import q.reflect.*
     val stringParts: Seq[String] = sc match {
-      case '{ StringContext($parts: _*) } => parts.valueOrAbort
+      case '{ StringContext($parts*) } => parts.valueOrAbort
     }
 
     if (Pointer.parse(stringParts.mkString("X")).isRight) {

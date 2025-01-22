@@ -24,7 +24,9 @@ case class Replacement(val placeholder: String, argument: Expr[Any]) {
   def asJson(using q: Quotes): Expr[Json] = {
     import q.reflect.*
     argument match {
-      case '{ $arg: t } => {
+      case '{
+            $arg: t
+          } => {
         arg.asTerm.tpe.widen.asType match {
           case '[t] =>
             Expr.summon[Encoder[t]] match {
