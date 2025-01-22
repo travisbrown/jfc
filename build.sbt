@@ -28,7 +28,7 @@ ThisBuild / libraryDependencySchemes +=
 
 val opticsVersion = "0.15.0"
 
-val catsVersion = "2.12.0"
+val catsVersion = "2.13.0"
 val jawnVersion = "1.6.0"
 val shapelessVersion = "2.3.12"
 
