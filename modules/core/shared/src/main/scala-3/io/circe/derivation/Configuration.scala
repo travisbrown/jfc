@@ -59,3 +59,106 @@ case class Configuration(
 
   def withStrictDecoding: Configuration = copy(strictDecoding = true)
   def withoutStrictDecoding: Configuration = copy(strictDecoding = false)
+
+  val dropNoneValues: Boolean = false
+
+  def withDropNoneValues(dropNoneValues: Boolean): Configuration = new ConfigurationNew(
+    transformMemberNames = transformMemberNames,
+    transformConstructorNames = transformConstructorNames,
+    useDefaults = useDefaults,
+    discriminator = discriminator,
+    strictDecoding = strictDecoding,
+    dropNoneValues = dropNoneValues
+  )
+
+private[derivation] class ConfigurationNew(
+  transformMemberNames: String => String = Predef.identity,
+  transformConstructorNames: String => String = Predef.identity,
+  useDefaults: Boolean = false,
+  discriminator: Option[String] = None,
+  strictDecoding: Boolean = false,
+  override val dropNoneValues: Boolean = true
+) extends Configuration(
+      transformMemberNames,
+      transformConstructorNames,
+      useDefaults,
+      discriminator,
+      strictDecoding
+    ) {
+
+  override def copy(
+    transformMemberNames: String => String = this.transformMemberNames,
+    transformConstructorNames: String => String = this.transformConstructorNames,
+    useDefaults: Boolean = this.useDefaults,
+    discriminator: Option[String] = this.discriminator,
+    strictDecoding: Boolean = this.strictDecoding
+  ): Configuration = copyNew(
+    transformMemberNames,
+    transformConstructorNames,
+    useDefaults,
+    discriminator,
+    strictDecoding,
+    dropNoneValues
+  )
+
+  private def copyNew(
+    transformMemberNames: String => String = this.transformMemberNames,
+    transformConstructorNames: String => String = this.transformConstructorNames,
+    useDefaults: Boolean = this.useDefaults,
+    discriminator: Option[String] = this.discriminator,
+    strictDecoding: Boolean = this.strictDecoding,
+    dropNoneValues: Boolean = this.dropNoneValues
+  ): ConfigurationNew = new ConfigurationNew(
+    transformMemberNames,
+    transformConstructorNames,
+    useDefaults,
+    discriminator,
+    strictDecoding,
+    dropNoneValues
+  )
+
+  override def withTransformMemberNames(f: String => String): Configuration = copyNew(transformMemberNames = f)
+
+  override def withSnakeCaseMemberNames: Configuration = withTransformMemberNames(renaming.snakeCase)
+
+  override def withScreamingSnakeCaseMemberNames: Configuration = withTransformMemberNames(renaming.screamingSnakeCase)
+
+  override def withKebabCaseMemberNames: Configuration = withTransformMemberNames(renaming.kebabCase)
+
+  override def withPascalCaseMemberNames: Configuration = withTransformMemberNames(renaming.pascalCase)
+
+  override def withTransformConstructorNames(f: String => String): Configuration =
+    copyNew(transformConstructorNames = f)
+
+  override def withSnakeCaseConstructorNames: Configuration = withTransformConstructorNames(renaming.snakeCase)
+
+  override def withScreamingSnakeCaseConstructorNames: Configuration = withTransformConstructorNames(
+    renaming.screamingSnakeCase
+  )
+
+  override def withKebabCaseConstructorNames: Configuration = withTransformConstructorNames(renaming.kebabCase)
+
+  override def withPascalCaseConstructorNames: Configuration = withTransformConstructorNames(renaming.pascalCase)
+
+  override def withDefaults: Configuration = copyNew(useDefaults = true)
+
+  override def withoutDefaults: Configuration = copyNew(useDefaults = false)
+
+  override def withDiscriminator(discriminator: String): Configuration = copyNew(discriminator = Some(discriminator))
+
+  override def withoutDiscriminator: Configuration = copyNew(discriminator = None)
+
+  override def withStrictDecoding: Configuration = copyNew(strictDecoding = true)
+
+  override def withoutStrictDecoding: Configuration = copyNew(strictDecoding = false)
+
+  override def withDropNoneValues(dropNoneValues: Boolean): Configuration = new ConfigurationNew(
+    transformMemberNames = transformMemberNames,
+    transformConstructorNames = transformConstructorNames,
+    useDefaults = useDefaults,
+    discriminator = discriminator,
+    strictDecoding = strictDecoding,
+    dropNoneValues = dropNoneValues
+  )
+
+}

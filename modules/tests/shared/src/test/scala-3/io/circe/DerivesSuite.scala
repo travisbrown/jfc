@@ -32,12 +32,22 @@ object DerivesSuite {
     implicit def arbitraryBox[A](implicit A: Arbitrary[A]): Arbitrary[Box[A]] = Arbitrary(A.arbitrary.map(Box(_)))
   }
 
+  case class InnerBox[A](inner: A) derives Decoder, Encoder
+
+  object InnerBox {
+    given eqInnerBox[A: Eq]: Eq[InnerBox[A]] = Eq.by(_.inner)
+    given arbitraryInnerBox[A](using A: Arbitrary[A]): Arbitrary[InnerBox[A]] = Arbitrary(
+      A.arbitrary.map(InnerBox(_))
+    )
+  }
+
   case class Qux[A](i: Int, a: A, j: Int) derives Codec
 
   object Qux {
-    implicit def eqQux[A: Eq]: Eq[Qux[A]] = Eq.by(q => (q.i, q.a, q.j))
+    given codec[A: Encoder: Decoder]: Codec[Qux[A]] = Codec.AsObject.derived
+    given eqQux[A: Eq]: Eq[Qux[A]] = Eq.by(q => (q.i, q.a, q.j))
 
-    implicit def arbitraryQux[A](implicit A: Arbitrary[A]): Arbitrary[Qux[A]] =
+    given arbitraryQux[A](using A: Arbitrary[A]): Arbitrary[Qux[A]] =
       Arbitrary(
         for {
           i <- Arbitrary.arbitrary[Int]
@@ -228,6 +238,7 @@ object DerivesSuite {
 class DerivesSuite extends CirceMunitSuite {
   import DerivesSuite.*
   import io.circe.syntax.*
+  import data.withDropNoneValues.*
 
   checkAll("Codec[Box[Wub]]", CodecTests[Box[Wub]].codec)
   checkAll("Codec[Box[Long]]", CodecTests[Box[Long]].codec)
@@ -242,6 +253,7 @@ class DerivesSuite extends CirceMunitSuite {
   checkAll("Codec[ADTWithSubTraitExample]", CodecTests[ADTWithSubTraitExample].codec)
   checkAll("Codec[ProductWithTaggedMember] (#2135)", CodecTests[ProductWithTaggedMember].codec)
   checkAll("Codec[Outer]", CodecTests[Outer].codec)
+  checkAll("Codec[WithNullables]", CodecTests[WithNullables].codec)
 
   test("Nested sums should not be encoded redundantly") {
     val foo: ADTWithSubTraitExample = TheClass(0)
@@ -257,4 +269,68 @@ class DerivesSuite extends CirceMunitSuite {
     assertEquals(some.asJson, expectedSome)
     assertEquals(none.asJson, expectedNone)
   }
+
+  test("Derivation uses pre-existing given codecs") {
+    import io.circe.syntax.*
+
+    {
+      val foo = Box("inner value")
+      val expected = Json.obj(
+        "a" -> "inner value".asJson
+      )
+      assert(foo.asJson === expected)
+    }
+
+    {
+      val foo = Box(Option("inner value"))
+      val expected = Json.obj(
+        "a" -> "inner value".asJson
+      )
+      assert(foo.asJson === expected)
+    }
+  }
+
+  test("Recursive derivation works inside Option") {
+    import io.circe.syntax.*
+    val foo = Box(Option(InnerBox("inner value")))
+    val expected = Json.obj(
+      "a" -> Json.obj(
+        "inner" -> "inner value".asJson
+      )
+    )
+
+    assert(foo.asJson === expected)
+  }
+
+  test("NullOr codecs work as expected") {
+    import io.circe.syntax.*
+    import data.withDropNoneValues.*
+
+    val foo =
+      WithNullables(
+        a = "a value",
+        b = NullOr.Value("b value"),
+        c = None,
+        d = NullOr.Null,
+        e = NullOr.Value(AnotherBox("boxed value")),
+        f = NullOr.Value(List("a", "b", "c")),
+        g = Some(AnotherBox("boxed in option"))
+      )
+
+    val expected = Json.obj(
+      "a" -> "a value".asJson,
+      "b" -> "b value".asJson,
+      "d" -> Json.Null,
+      "e" -> Json.obj(
+        "a" -> "boxed value".asJson
+      ),
+      "f" -> List("a", "b", "c").asJson,
+      "g" -> Json.obj(
+        "a" -> "boxed in option".asJson
+      )
+    )
+
+    assert(foo.asJson === expected)
+  }
+
 }
