@@ -258,14 +258,92 @@ object DerivesSuite {
     v31: String,
     v32: String,
     v33: String
-  ) derives Encoder,
+  ) derives Encoder.AsObject,
         Decoder
+
+  object LongClass:
+    given Eq[LongClass] = Eq.fromUniversalEquals
+    given Arbitrary[LongClass] = Arbitrary {
+      for
+        s1 <- Arbitrary.arbitrary[String]
+        s2 <- Arbitrary.arbitrary[String]
+        s3 <- Arbitrary.arbitrary[String]
+        s4 <- Arbitrary.arbitrary[String]
+        s5 <- Arbitrary.arbitrary[String]
+        s6 <- Arbitrary.arbitrary[String]
+        s7 <- Arbitrary.arbitrary[String]
+        s8 <- Arbitrary.arbitrary[String]
+        s9 <- Arbitrary.arbitrary[String]
+        s10 <- Arbitrary.arbitrary[String]
+        s11 <- Arbitrary.arbitrary[String]
+        s12 <- Arbitrary.arbitrary[String]
+        s13 <- Arbitrary.arbitrary[String]
+        s14 <- Arbitrary.arbitrary[String]
+        s15 <- Arbitrary.arbitrary[String]
+        s16 <- Arbitrary.arbitrary[String]
+        s17 <- Arbitrary.arbitrary[String]
+        s18 <- Arbitrary.arbitrary[String]
+        s19 <- Arbitrary.arbitrary[String]
+        s20 <- Arbitrary.arbitrary[String]
+        s21 <- Arbitrary.arbitrary[String]
+        s22 <- Arbitrary.arbitrary[String]
+        s23 <- Arbitrary.arbitrary[String]
+        s24 <- Arbitrary.arbitrary[String]
+        s25 <- Arbitrary.arbitrary[String]
+        s26 <- Arbitrary.arbitrary[String]
+        s27 <- Arbitrary.arbitrary[String]
+        s28 <- Arbitrary.arbitrary[String]
+        s29 <- Arbitrary.arbitrary[String]
+        s30 <- Arbitrary.arbitrary[String]
+        s31 <- Arbitrary.arbitrary[String]
+        s32 <- Arbitrary.arbitrary[String]
+        s33 <- Arbitrary.arbitrary[String]
+      yield LongClass(
+        s1,
+        s2,
+        s3,
+        s4,
+        s5,
+        s6,
+        s7,
+        s8,
+        s9,
+        s10,
+        s11,
+        s12,
+        s13,
+        s14,
+        s15,
+        s16,
+        s17,
+        s18,
+        s19,
+        s20,
+        s21,
+        s22,
+        s23,
+        s24,
+        s25,
+        s26,
+        s27,
+        s28,
+        s29,
+        s30,
+        s31,
+        s32,
+        s33
+      )
+    }
 
   enum LongEnum derives Encoder, Decoder:
     case v1, v2, v3, v4, v5, v6, v7, v8, v9, v10,
       v11, v12, v13, v14, v15, v16, v17, v18, v19, v20,
       v21, v22, v23, v24, v25, v26, v27, v28, v29, v30,
       v31, v32, v33
+
+  object LongEnum:
+    given Eq[LongEnum] = Eq.fromUniversalEquals
+    given Arbitrary[LongEnum] = Arbitrary(Gen.oneOf(LongEnum.values))
 
   enum LongSum derives Encoder, Decoder:
     case v1(str: String)
@@ -301,6 +379,51 @@ object DerivesSuite {
     case v31(str: String)
     case v32(str: String)
     case v33(str: String)
+
+  object LongSum:
+    given Eq[LongSum] = Eq.fromUniversalEquals
+    given Arbitrary[LongSum] = Arbitrary(
+      for
+        v <- Arbitrary.arbitrary[String]
+        res <- Gen.oneOf(
+          Seq(
+            v1(v),
+            v2(v),
+            v3(v),
+            v4(v),
+            v5(v),
+            v6(v),
+            v7(v),
+            v8(v),
+            v9(v),
+            v10(v),
+            v11(v),
+            v12(v),
+            v13(v),
+            v14(v),
+            v15(v),
+            v16(v),
+            v17(v),
+            v18(v),
+            v19(v),
+            v20(v),
+            v21(v),
+            v22(v),
+            v23(v),
+            v24(v),
+            v25(v),
+            v26(v),
+            v27(v),
+            v28(v),
+            v29(v),
+            v30(v),
+            v31(v),
+            v32(v),
+            v33(v)
+          )
+        )
+      yield res
+    )
 }
 
 class DerivesSuite extends CirceMunitSuite {
@@ -320,6 +443,9 @@ class DerivesSuite extends CirceMunitSuite {
   checkAll("Codec[ADTWithSubTraitExample]", CodecTests[ADTWithSubTraitExample].codec)
   checkAll("Codec[ProductWithTaggedMember] (#2135)", CodecTests[ProductWithTaggedMember].codec)
   checkAll("Codec[Outer]", CodecTests[Outer].codec)
+  checkAll("Codec[LongClass]", CodecTests[LongClass].codec)
+  checkAll("Codec[LongSum]", CodecTests[LongSum].codec)
+  checkAll("Codec[LongEnum]", CodecTests[LongEnum].codec)
 
   test("Nested sums should not be encoded redundantly") {
     val foo: ADTWithSubTraitExample = TheClass(0)
