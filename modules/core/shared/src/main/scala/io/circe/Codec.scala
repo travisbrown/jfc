@@ -93,6 +93,19 @@ object Codec extends ProductCodecs with ProductTypedCodecs with EnumerationCodec
       def apply(a: A): Json = encodeA(a)
     }
 
+  /**
+   * A shortcut for `Codec.from[Foo](implicitly, implicitly)`
+   *
+   * This is useful when deriving a codec for a wrapper type that has a `Decoder` and `Encoder`, but no
+   * explicit `Codec`
+   *
+   * {{{
+   *   implicit val explicitly: Codec[Foo] = Codec.from[Boolean](implicitly, implicitly).imap(Foo(_))(_.value)
+   *   implicit val viaImplied: Codec[Bar] = Codec.implied[Boolean].imap(Bar(_))(_.value)
+   * }}}
+   */
+  def implied[A: Decoder: Encoder]: Codec[A] = from[A](Decoder[A], Encoder[A])
+
   trait AsRoot[A] extends Codec[A] with Encoder.AsRoot[A]
 
   object AsRoot {
