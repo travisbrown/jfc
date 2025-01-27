@@ -21,8 +21,6 @@ import cats.data.Validated
 import io.circe.DecodingFailure.Reason.WrongTypeExpectation
 
 import scala.collection.mutable.Builder
-import io.circe.CursorOp.MoveRight
-import io.circe.CursorOp.DownArray
 import io.circe.cursor.ArrayCursor
 
 private[circe] abstract class SeqDecoder[A, C[_]](decodeA: Decoder[A]) extends Decoder[C[A]] {
