@@ -285,3 +285,34 @@ class DecodingFailureSuite extends CirceMunitSuite {
     assert(List(nd, bd, sd, ld).forall(d => d.decodeJson(o).isLeft))
   }
 }
+
+class CodecRelationshipWithEncoderAndDecoderSuite extends CirceMunitSuite {
+  private val decoder: Decoder[Wub] = Decoder[Long].map[Wub](Wub(_))
+  private val encoder: Encoder[Wub] = Encoder[Long].contramap(_.x)
+
+  test("A Codec should provide a Decoder and Encoder") {
+    implicit val codec: Codec[Wub] = Codec.from(decoder, encoder)
+    assertEquals(Decoder[Wub].decodeJson(Json.fromInt(10)), Right(Wub(10)))
+    assertEquals(Encoder[Wub].apply(Wub(10)), Json.fromInt(10))
+  }
+
+  test("A Codec created using Codec.from shouldn't break things when a decoder + encoder is in scope") {
+    implicit val d: Decoder[Wub] = decoder
+    implicit val e: Encoder[Wub] = encoder
+    implicit val codec: Codec[Wub] = Codec.from(decoder, encoder)
+    assertEquals(Decoder[Wub].decodeJson(Json.fromInt(10)), Right(Wub(10)))
+    assertEquals(Encoder[Wub].apply(Wub(10)), Json.fromInt(10))
+    assertEquals(Codec[Wub].decodeJson(Json.fromInt(10)), Right(Wub(10)))
+    assertEquals(Codec[Wub].apply(Wub(10)), Json.fromInt(10))
+  }
+
+  test("A Codec created using Codec.implied shouldn't break things when a decoder + encoder is in scope") {
+    implicit val d: Decoder[Wub] = decoder
+    implicit val e: Encoder[Wub] = encoder
+    implicit val codec: Codec[Wub] = Codec.implied[Long].imap(Wub(_))(_.x)
+    assertEquals(Decoder[Wub].decodeJson(Json.fromInt(10)), Right(Wub(10)))
+    assertEquals(Encoder[Wub].apply(Wub(10)), Json.fromInt(10))
+    assertEquals(Codec[Wub].decodeJson(Json.fromInt(10)), Right(Wub(10)))
+    assertEquals(Codec[Wub].apply(Wub(10)), Json.fromInt(10))
+  }
+}
